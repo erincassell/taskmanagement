@@ -19,7 +19,22 @@ function onOpen() {
 
 function earlyMorning() {
   moveComplete();
+  reprioritize();
   moveDaily();
+}
+
+function reprioritize() {
+  var sa = SpreadsheetApp.getActiveSpreadsheet();
+  var ss = sa.getSheetByName("Current");
+  var allTasks = ss.getDataRange().getValues();
+  for(var i = 1; i < allTasks.length; i++) {
+    if(allTasks[i][0] > 0) {
+      allTasks[i][0] = 4;
+      allTasks[i][1] = "";
+    }
+  }
+  
+  ss.getRange(1, 1, allTasks.length, allTasks[0].length).setValues(allTasks);
 }
 
 function moveComplete() {
