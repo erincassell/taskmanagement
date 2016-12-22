@@ -13,8 +13,12 @@ function onOpen() {
       .addSubMenu(ui.createMenu('Sorting')
           .addItem('By Due Date', 'sortDue')
           .addItem('By Priority', 'sortPriority'))
+      .addSeparator()
+      .addSubMenu(ui.createMenu('Other')
+          .addItem('Rebuild Overview', 'generateOverview'))
       .addToUi();
   sortDue();
+  generateOverview();
 }
 
 function earlyMorning() {
