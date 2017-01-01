@@ -113,3 +113,101 @@ function generateOverview() {
   }
   var helper = 1;
 }
+
+function summarizeMonth() {
+  moveComplete();
+  
+  var sa = SpreadsheetApp.getActiveSpreadsheet();
+  var complete = sa.getSheetByName("Complete");
+  var deleted = sa.getSheetByName("Deleted");
+  var overview = sa.getSheetByName("Overview");
+  
+  var newMont = new Date();
+  var newMonth = new Date(2017, 00, 01);
+  if(newMonth.getMonth() == 0) {
+    var month = 11;
+    var year = newMonth.getFullYear() - 1;
+  } else {
+    var month = newMonth.getMonth();
+    var year = newMonth.getFullYear();
+  }
+  
+  var completeData = complete.getDataRange().getValues();
+  var deletedData = deleted.getDataRange().getValues();
+  var overviewData = overview.getDataRange().getValues();
+  
+  var dueCol = completeData[0].indexOf("Due");
+  var doneCol = completeData[0].indexOf("Date Completed");
+  var countedCol = completeData[0].indexOf("Counted");
+  var completeLength = completeData[0].length;
+  
+  completeData.splice(0, 1);
+  
+  var i = 0;
+  var totalComplete = 0;
+  var totalDeleted = 0;
+  while(i < completeData.length) {
+    var helper = completeData[i];
+    if(completeData[i][countedCol] == "" && (completeData[i][dueCol] != "" || completeData[i][doneCol] != "")) {
+      if(completeData[i][dueCol] == "") {
+        completeData[i][dueCol] = new Date(1970, 0, 1);
+      }
+      
+      if(completeData[i][doneCol] == "") {
+        completeData[i][doneCol] = new Date(1970, 0, 1);
+      }
+                     
+      if(completeData[i][dueCol].getMonth() == month || completeData[i][doneCol].getMonth() == month) {
+        totalComplete++;
+      }
+    completeData[i][countedCol] = "X";
+    }
+    i++;
+  }
+  
+  dueCol = deletedData[0].indexOf("Due");
+  doneCol = deletedData[0].indexOf("Date Deleted");
+  countedCol = deletedData[0].indexOf("Counted");
+  var deleteLength = deletedData[0].length;
+
+  deletedData.splice(0, 1);
+
+  var i = 0;
+  while(i < deletedData.length) {
+    var helper = deletedData[i];
+    if(deletedData[i][countedCol] == "" && (deletedData[i][dueCol] != "" || deletedData[i][doneCol] != "")) {
+      if(deletedData[i][dueCol] == "") {
+        deletedData[i][dueCol] = new Date(1970, 0, 1);
+      }
+      
+      if(deletedData[i][doneCol] == "") {
+        deletedData[i][doneCol] = new Date(1970, 0, 1);
+      }
+                     
+      if(deletedData[i][dueCol].getMonth() == month || deletedData[i][doneCol].getMonth() == month) {
+        totalDeleted++;
+      }
+    deletedData[i][countedCol] = "X";
+    }
+    i++;
+  }
+
+  var monthCol = overviewData[3].indexOf("Month");
+  var compCol = overviewData[3].indexOf("Completed");
+  var delCol = overviewData[3].indexOf("Deleted");
+  
+  var putData = [[(month + 1).toString() + "/" + year.toString(), totalComplete, totalDeleted]];
+
+  var tableData = overview.getRange(4, monthCol+1, 50, 3).getValues();
+  for(var j = 0; j < tableData.length; j++) {
+    if(tableData[j][0] == 0) {
+      break;
+    }
+  }
+  
+  overview.getRange(j+4, monthCol+1, 1, 3).setValues(putData);
+  overview.getRange(j+4, monthCol+1, 1, 3).setBorder(true, true, true, true, true, true);
+  
+  complete.getRange(2, 1, completeData.length, completeLength).setValues(completeData);
+  deleted.getRange(2, 1, deletedData.length, deleteLength).setValues(deletedData);
+}
